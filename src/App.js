@@ -4,7 +4,10 @@ import "./App.css";
 function App() {
   const [movies, setMovies] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(null);
+  const [search,setSearch] = useState("");
 
+  const filteredMovies = movies.filter((movie)=>
+  movie.title.toLowerCase().includes(search.toLowerCase()));
   useEffect(() => {
     async function getData() {
       try {
@@ -22,7 +25,7 @@ function App() {
   if (selectedMovie) {
     return (
       <div className="App">
-        <button onClick={() => setSelectedMovie(null)}>⬅ Back to list</button>
+        <button onClick={() => setSelectedMovie(null)}>Back to list</button>
         <div className="movie-details">
           <h2>{selectedMovie.title}</h2>
           {selectedMovie.tagline && (
@@ -54,8 +57,13 @@ function App() {
   return (
     <div className="App">
       <h1>Nice Movies</h1>
+      <input type="text"
+         placeholder="Search by Title: "
+         value={search}
+         onChange={(e)=>setSearch(e.target.value)}
+     />
       <div className="movie-list">
-        {movies.map((movie) => (
+        {filteredMovies.length > 0 ? (filteredMovies.map((movie) => (
           <div
             key={movie.id}
             className="movie-card"
@@ -69,7 +77,7 @@ function App() {
             )}
             <p>Rating: {movie.vote_average} / 10</p>
           </div>
-        ))}
+        ))):(<p>Movie not found</p>)}
       </div>
     </div>
   );
