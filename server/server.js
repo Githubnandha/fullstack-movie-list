@@ -2,7 +2,6 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const cors = require("cors");
-
 const app = express();
 
 app.use(cors());
@@ -13,38 +12,55 @@ app.get("/api/ping", (request, response) => {
   response.send("pong!");
 });
 
-// A mock route to return some data.
-app.get("/api/movies", (req, res) => {
-  console.log("❇️ Received GET request to /api/movies");
-
+async function readMoviesData() {
   const filePath = path.join(__dirname, "movies_metadata.json");
+  try {
+    const data = await fs.promises.readFile(filePath, "utf8");
+    return JSON.parse(data);
+  } catch (err) {
+    console.error("Error reading JSON file:", err);
+    throw err;
+  }
+}
 
-  fs.readFile(filePath, "utf8", (err, data) => {
-    if (err) {
-      console.error("Error reading JSON file:", err);
-      return res.status(500).json({ error: "Failed to read file" });
-    }
-
-    try {
-      const movies = JSON.parse(data);
-      res.json({ data: movies });
-    } catch (parseErr) {
-      console.error("Error parsing JSON:", parseErr);
-      res.status(500).json({ error: "Invalid JSON format" });
-    }
-  });
+// A mock route to return some data.
+app.get("/api/movies", async (req, res) => {
+  console.log("Received GET request to /api/movies");
+  try {
+    const movies = await readMoviesData();
+    res.json({ data: movies });
+  } catch (parseErr) {
+    console.error("Error parsing JSON:", parseErr);
+    res.status(500).json({ error: "Invalid JSON format" });
+  }
 });
 // Route to get a single movie by ID
 app.get("/api/movies/:id", async (req, res) => {
   console.log("❇️ Received GET request to /api/movies/:id");
+
   const { id } = req.params;
+  const numericId = Number(id);
+
+  if (isNaN(numericId)) {
+    return res.status(400).json({ error: "Invalid movie ID format" });
+  }
+
   try {
     const movies = await readMoviesData();
-    const movie = movies.find((m) => m.id === Number(id));
-    if (!movie) return res.status(404).json({ error: "Movie not found" });
+
+    if (!Array.isArray(movies)) {
+      throw new Error("Movies data is not an array");
+    }
+
+    const movie = movies.find((m) => m.id === numericId);
+
+    if (!movie) {
+      return res.status(404).json({ error: "Movie not found" });
+    }
+    console.log(movie);
     res.json({ data: movie });
   } catch (err) {
-    console.error("Error reading movies:", err);
+    console.error("Error reading movies:", err.message || err);
     res.status(500).json({ error: "Failed to read movies file" });
   }
 });
