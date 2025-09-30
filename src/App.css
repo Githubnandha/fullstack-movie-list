@@ -3,12 +3,13 @@
   margin: 0;
 }
 #movie-container {
+  display: grid;
   grid-template-areas: "header" "main" "footer";
+  grid-template-rows: 100px 1fr 70px;
   height: 100vh;
 }
 header {
   grid-area: header;
-  height: 100px;
   width: 100%;
   background-color: #E50914;
 }
@@ -24,9 +25,15 @@ main {
   padding: 2% 5%;
   background-color: #e0d8d8;
 }
+#searchBar{
+  width: 80%;
+  margin: 1% 5%;
+  padding: 0% 3%;
+  border-radius: 10px;
+  height: 40px;
+}
 footer {
   grid-area: footer;
-  height: 60px;
   width: 100%;
   background-color: #E50914;
 }
@@ -43,8 +50,14 @@ footer {
 }
 .movie-card {
   display: grid;
-  border: 2px solid black;
+  border-radius: 15px;
+  border: 2px solid rgb(83, 53, 53);
   margin: 10px;
+  padding: 3%;
+}
+#movie-not-found-div {
+  width: 100%;
+  text-align: center;
 }
 p {
   padding: 0px 10px;
